@@ -26,5 +26,5 @@ def somme(valeur1, valeur2):
     resultat = valeur1 + valeur2
     return "<h2>Le résultat de la somme est : </h2>" + str(resultat)
                                                                                                                
-if name == "main":
+if __name__ == "__main__":
   app.run(debug=True, host='0.0.0.0', port=5000)
