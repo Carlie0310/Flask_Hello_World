@@ -1,0 +1,96 @@
+/* contact.css */
+
+/* ------------------------------------------------------
+   Styles de base et centrer le contenu
+   ------------------------------------------------------ */
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(to right, #74ABE2, #5563DE);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Conteneur principal du formulaire */
+.contact-container {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    max-width: 400px;
+    width: 100%;
+}
+
+/* Titre du formulaire */
+.contact-form h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+/* ------------------------------------------------------
+   Style des champs de saisie
+   ------------------------------------------------------ */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #555;
+    font-size: 0.95rem;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+/* Effet au focus sur les champs */
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: #5563DE;
+    outline: none;
+}
+
+/* ------------------------------------------------------
+   Style du bouton d'envoi
+   ------------------------------------------------------ */
+.btn {
+    width: 100%;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 5px;
+    background-color: #5563DE;
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn:hover {
+    background-color: #74ABE2;
+}
+
+/* ------------------------------------------------------
+   Responsive pour petits écrans
+   ------------------------------------------------------ */
+@media (max-width: 480px) {
+    .contact-container {
+        padding: 1rem;
+    }
+
+    .btn {
+        font-size: 0.9rem;
+        padding: 0.6rem;
+    }
+}
