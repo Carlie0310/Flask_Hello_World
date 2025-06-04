@@ -32,7 +32,7 @@ jobs:
           ngrok config add-authtoken ${{ secrets.NGROK_AUTH_TOKEN }}
 
           # Lancer le conteneur Flask
-          docker run -d -p 5000:5000 --name flask_container  flask-hello-world
+          docker run -d -p 5000:5000 --name flask-container  flask-hello-world
           sleep 10
           
           # Vérifier que l'app Flask répond localement
