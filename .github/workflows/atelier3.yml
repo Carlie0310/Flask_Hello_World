@@ -43,7 +43,7 @@ jobs:
         run: |
           nohup ./ngrok http 5000 --log=stdout > ngrok.log 2>&1 &
           # Laisser ngrok démarrer
-          sleep 5
+          sleep 10
 
       # 7. Interroger l’API locale de ngrok pour récupérer l’URL publique
       - name: Récupérer l’URL publique ngrok
