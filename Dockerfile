@@ -7,14 +7,14 @@
 FROM python:3.9-slim
 
 # 2. Définir le répertoire de travail à l’intérieur du conteneur
-WORKDIR /app
+WORKDIR /Flask_Hello_World
 
-# 3. On installera Flask « à la volée »
-# 3. Installer directement Flask (pas de requirements.txt)
-RUN pip install --no-cache-dir Flask
+# 3. On installera requirements.txt
+COPY requirements.txt .
+RUN pip install -r requirements.txt
 
 # 5. Copier tout le reste du dépôt dans /app
-COPY . /app
+COPY . .
 
 # 6. Exposer le port 5000 (celui utilisé par app.run)
 EXPOSE 5000
