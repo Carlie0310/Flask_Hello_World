@@ -1,8 +1,6 @@
 # .github/workflows/atelier3.yml
-name: ATELIER 3 – Serveur Flask (via __init__.py) + ngrok
+name: ATELIER 3 – Serveur Flask + ngrok
 
-# Ce workflow ne se déclenchera QUE manuellement (workflow_dispatch)
-# pour éviter de lancer CICD.yml à la place.
 on:
   workflow_dispatch:
 
@@ -11,53 +9,64 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout : récupérer tout le contenu du dépôt
+      # 1. Checkout du dépôt
       - name: Checkout du dépôt
         uses: actions/checkout@v3
 
-      # 2. Build de l’image Docker à partir du Dockerfile à la racine
+      # 2. Build de l'image Docker
       - name: Build de l’image Docker
         run: |
           docker build -t flask-hello-world .
 
-      # 3. Lancer le conteneur Flask en détaché, exposant le port 5000
+      # 3. Lancer le conteneur Flask
       - name: Lancer le conteneur Flask
         run: |
           docker run -d --name flask_container -p 5000:5000 flask-hello-world
 
-      # 4. Installer ngrok (Linux 64 bits)
-      - name: Installer ngrok
+      # 4. Installer ngrok et jq
+      - name: Installer ngrok et jq
         run: |
           wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
           unzip ngrok-stable-linux-amd64.zip
           chmod +x ./ngrok
+          # Installer jq pour parser le JSON renvoyé par ngrok
+          apt-get update && apt-get install -y jq
 
-      # 5. (Optionnel) Authentifier ngrok si vous avez un token dans 
-      #    les Secrets GitHub (NGROK_AUTH_TOKEN). Décommentez si nécessaire.
+      # 5. (Optionnel) Authentifier ngrok (si NGROK_AUTH_TOKEN dans vos Secrets)
       # - name: Auth ngrok
       #   run: |
       #     ./ngrok authtoken ${{ secrets.NGROK_AUTH_TOKEN }}
 
-      # 6. Démarrer ngrok pour exposer le port 5000 et capturer l’URL publique
-      - name: Démarrer ngrok et récupérer l’URL
-        id: start_ngrok
+      # 6. Démarrer ngrok en arrière-plan
+      - name: Démarrer ngrok en tâche de fond
         run: |
-          # Lancer ngrok en arrière-plan et diriger la sortie vers ngrok.log
           nohup ./ngrok http 5000 --log=stdout > ngrok.log 2>&1 &
-          # Laisser ngrok démarrer (2–3 secondes, 5 est plus sûr)
+          # Laisser ngrok démarrer
           sleep 5
-          # Extraire la première URL publique du type https://xxxx.ngrok.io
-          NGROK_URL=$(grep -oE "https://[0-9a-z]+\\.ngrok\\.io" ngrok.log | head -n1)
-          echo "URL_NGROK=$NGROK_URL" >> $GITHUB_OUTPUT
 
-      # 7. Afficher dans les logs l’URL ngrok pour y accéder pendant 120 s
+      # 7. Interroger l'API locale de ngrok pour extraire l'URL publique
+      - name: Récupérer l’URL publique ngrok
+        id: get_ngrok_url
+        run: |
+          # On interroge http://127.0.0.1:4040/api/tunnels
+          RESPONSE=$(curl --silent http://127.0.0.1:4040/api/tunnels)
+          # On extrait le premier tunnel public_url
+          PUBLIC_URL=$(echo "$RESPONSE" | jq -r '.tunnels[0].public_url')
+          if [ -z "$PUBLIC_URL" ] || [ "$PUBLIC_URL" == "null" ]; then
+            echo "ERREUR : impossible de récupérer l’URL ngrok."
+            echo "Contenu de la réponse API ngrok : $RESPONSE"
+            exit 1
+          fi
+          echo "URL_NGROK=$PUBLIC_URL" >> $GITHUB_OUTPUT
+
+      # 8. Afficher l’URL ngrok dans les logs
       - name: Afficher l’URL ngrok
         run: |
-          echo "Votre serveur Flask est exposé temporairement à : ${{ steps.start_ngrok.outputs.URL_NGROK }}"
+          echo "Votre serveur Flask est exposé temporairement à : ${{ steps.get_ngrok_url.outputs.URL_NGROK }}"
 
-      # 8. Laisser le tunnel actif pendant 120 secondes, puis terminer
+      # 9. Garder le tunnel actif pendant 120 secondes
       - name: Garder le tunnel actif (120 s)
         run: |
           echo "Tunnel actif pendant 120 secondes…"
           sleep 120
-          echo "Fin du tunnel. Le job va se terminer."
+          echo "Fin du tunnel. Le job se termine."
