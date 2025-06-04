@@ -16,6 +16,11 @@ def exercices():
 @app.route("/contact/")
 def MaPremiereAPI():
     return render_template("contact.html")
+
+@app.route('/somme/<int:valeur1>/<int:valeur2>')
+def somme(valeur1, valeur2):
+    resultat = valeur1 + valeur2
+    return "<h2>Le résultat de la somme est : </h2>" + str(resultat)
                                                                                                                
 if __name__ == "__main__":
   app.run(debug=True)
