@@ -9,17 +9,9 @@ FROM python:3.9-slim
 # 2. Définir le répertoire de travail à l’intérieur du conteneur
 WORKDIR /app
 
-# 3. Copier le fichier requirements.txt, s’il existe.
-#    Sinon, on installera Flask « à la volée »
-COPY requirements.txt /app/requirements.txt
-
-# 4. Installer les dépendances Python
-#    Si requirements.txt n’existe pas, on fait pip install Flask
-RUN if [ -f requirements.txt ]; then \
-      pip install --no-cache-dir -r requirements.txt; \
-    else \
-      pip install --no-cache-dir Flask; \
-    fi
+# 3. On installera Flask « à la volée »
+# 3. Installer directement Flask (pas de requirements.txt)
+RUN pip install --no-cache-dir Flask
 
 # 5. Copier tout le reste du dépôt dans /app
 COPY . /app
