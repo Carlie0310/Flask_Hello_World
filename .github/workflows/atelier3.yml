@@ -23,34 +23,33 @@ jobs:
         run: |
           docker run -d --name flask_container -p 5000:5000 flask-hello-world
 
-      # 4. Installer ngrok et jq
+      # 4. Télécharger et installer ngrok, puis installer jq (avec sudo)
       - name: Installer ngrok et jq
         run: |
           wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
           unzip ngrok-stable-linux-amd64.zip
           chmod +x ./ngrok
-          # Installer jq pour parser le JSON renvoyé par ngrok
-          apt-get update && apt-get install -y jq
+          # Mettre à jour la liste des paquets et installer jq
+          sudo apt-get update
+          sudo apt-get install -y jq
 
-      # 5. (Optionnel) Authentifier ngrok (si NGROK_AUTH_TOKEN dans vos Secrets)
+      # 5. (Optionnel) Auth ngrok si vous avez configuré un token dans les Secrets GitHub
       # - name: Auth ngrok
       #   run: |
       #     ./ngrok authtoken ${{ secrets.NGROK_AUTH_TOKEN }}
 
-      # 6. Démarrer ngrok en arrière-plan
+      # 6. Démarrer ngrok en tâche de fond
       - name: Démarrer ngrok en tâche de fond
         run: |
           nohup ./ngrok http 5000 --log=stdout > ngrok.log 2>&1 &
           # Laisser ngrok démarrer
           sleep 5
 
-      # 7. Interroger l'API locale de ngrok pour extraire l'URL publique
+      # 7. Interroger l’API locale de ngrok pour récupérer l’URL publique
       - name: Récupérer l’URL publique ngrok
         id: get_ngrok_url
         run: |
-          # On interroge http://127.0.0.1:4040/api/tunnels
           RESPONSE=$(curl --silent http://127.0.0.1:4040/api/tunnels)
-          # On extrait le premier tunnel public_url
           PUBLIC_URL=$(echo "$RESPONSE" | jq -r '.tunnels[0].public_url')
           if [ -z "$PUBLIC_URL" ] || [ "$PUBLIC_URL" == "null" ]; then
             echo "ERREUR : impossible de récupérer l’URL ngrok."
